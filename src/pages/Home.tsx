@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Alert } from 'react-native';
+import React, { useState } from "react";
+import { StyleSheet, View, Alert } from "react-native";
 
-import { Header } from '../components/Header';
-import { Task, TasksList } from '../components/TasksList';
-import { TodoInput } from '../components/TodoInput';
+import { Header } from "../components/Header";
+import { Task, TasksList } from "../components/TasksList";
+import { TodoInput } from "../components/TodoInput";
+
+export type EditTaskArgs = {
+  taskId: number;
+  taskNewTitle: string;
+};
 
 export function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -26,15 +31,31 @@ export function Home() {
   function handleToggleTaskDone(id: number) {
     const updateTasks = tasks.map(task => ({ ...task }));
     const foundItem = updateTasks.find(element => element.id === id);
-    if(!foundItem) return;
+    if (!foundItem) return;
     foundItem.done = !foundItem.done;
-    setTasks(updateTasks)
+    setTasks(updateTasks);
   }
 
   function handleRemoveTask(id: number) {
-    setTasks(prevState => prevState.filter(
-      tasks => tasks.id !== id
-    ))
+    Alert.alert("Remover", "Remover a tarefa?", [
+      {
+        text: "Sim",
+        onPress: () =>
+          setTasks(prevState => prevState.filter(tasks => tasks.id !== id))
+      },
+      {
+        text: "Não",
+        style: "cancel"
+      }
+    ]);
+  }
+
+  function handleEditTask({ taskId, taskNewTitle }: EditTaskArgs) {
+    const updateTasks = tasks.map(task => ({ ...task }));
+    const foundItem = updateTasks.find(element => element.id === taskId);
+    if (!foundItem) return;
+    foundItem.title = taskNewTitle;
+    setTasks(updateTasks);
   }
 
   return (
@@ -43,18 +64,19 @@ export function Home() {
 
       <TodoInput addTask={handleAddTask} />
 
-      <TasksList 
-        tasks={tasks} 
+      <TasksList
+        tasks={tasks}
         toggleTaskDone={handleToggleTaskDone}
-        removeTask={handleRemoveTask} 
+        removeTask={handleRemoveTask}
+        editTask={handleEditTask}
       />
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#EBEBEB'
+    backgroundColor: "#EBEBEB"
   }
-})
+});
